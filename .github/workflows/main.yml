@@ -7,7 +7,27 @@ on:
     branches: [ "main" ]
 
 jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install linting tools
+        run: pip install flake8
+
+      - name: Run flake8
+        # אנחנו בודקים את תיקיית app ואת קבצי ה-py הראשיים
+        run: flake8 app/ run.py config.py --count --select=E9,F63,F7,F82 --show-source --statistics
+
   build-and-push:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,13 +43,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:latest . > build.log 2>&1
-          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
-
-      - name: Upload Build Logs
-        if: always() 
-        uses: actions/upload-artifact@v4
+        uses: docker/build-push-action@v5
         with:
-          name: docker-build-logs
-          path: build.log
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/flask-app:latest

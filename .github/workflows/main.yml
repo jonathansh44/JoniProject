@@ -23,8 +23,13 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5 # מומלץ להשתמש בגרסה v5 העדכנית
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:latest . > build.log 2>&1
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+
+      - name: Upload Build Logs
+        if: always() 
+        uses: actions/upload-artifact@v4
         with:
-          context: .
-          push: true
-          tags: USERNAME/IMAGE_NAME:latest
+          name: docker-build-logs
+          path: build.log

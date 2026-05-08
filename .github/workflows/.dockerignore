@@ -1,0 +1,21 @@
+# Python
+venv/
+venv2/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database
+*.db
+
+# Environment variables
+.env
+
+# Git
+.git
+.gitignore
+
+# Docker & CI/CD
+Dockerfile
+.github/
